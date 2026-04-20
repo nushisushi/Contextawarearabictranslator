@@ -11,36 +11,21 @@ export function TranslatorInput() {
 
     setIsLoading(true);
 
-    try {
-      // Call Python backend for dialect classification
-      const response = await fetch('http://localhost:5000/classify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: text })
-      });
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-      if (!response.ok) {
-        throw new Error('Classification failed');
+    // Mock translation result
+    const dialects = ["Maghrebi", "Egyptian", "Gulf", "Levantine"];
+    const randomDialect = dialects[Math.floor(Math.random() * dialects.length)];
+    const mockTranslation = `This is a translated version of: ${text}`;
+
+    navigate("/result", {
+      state: {
+        dialect: randomDialect,
+        translation: mockTranslation,
+        originalText: text
       }
-
-      const data = await response.json();
-
-      navigate("/result", {
-        state: {
-          dialect: data.dialect,           // Egyptian, Levantine, Gulf, Iraqi, or Maghrebi
-          dialectCode: data.dialect_code,  // EGY, LEV, GLF, IRQ, MGH
-          translation: data.translation,   // Translation (currently echoes back)
-          originalText: text,
-          confidence: data.confidence      // Model confidence score
-        }
-      });
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to classify dialect. Make sure the Python backend is running on http://localhost:5000');
-      setIsLoading(false);
-    }
+    });
   };
 
   return (
