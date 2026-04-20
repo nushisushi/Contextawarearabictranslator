@@ -20,7 +20,6 @@ pip install -r requirements.txt
 # be vigilant of errors
 
 ```
-
 **Note**: First installation will download the Helsinki-NLP model (~300MB). This is automatic.
 
 ### 2. Prepare Training Data
