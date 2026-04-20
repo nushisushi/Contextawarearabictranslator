@@ -50,9 +50,14 @@ export function TranslatorInput() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl text-center mb-8 text-gray-800">
-          Context-Aware Arabic Translator
-        </h1>
+        <div className="text-center mb-8">
+          <p className="text-6xl md:text-7xl font-black leading-none text-indigo-200/69 select-none mb-2">
+            Ara Ara~
+          </p>
+          <h1 className="text-3xl md:text-4xl text-gray-800">
+            Context-Aware Arabic Translator
+          </h1>
+        </div>
 
         <div className="space-y-6">
           <div>
