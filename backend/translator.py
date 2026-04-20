@@ -23,6 +23,19 @@ def load_translation_model():
     print(f"✓ Translation model loaded successfully on {device}")
     return True
 
+# NEW: lets the function accept either the classifier label or our existing category name
+# Dialect Normalization Layer (Key Innovation)
+DIALECT_LABEL_ALIASES = {
+    "EGY": "EGY",
+    "GLF": "GLF",
+    "IRQ": "IRQ",
+    "MSA": "MSA",
+    "LEV": "LEV",
+    "LAV": "LEV",
+    "MGH": "MGH",
+    "NOR": "MGH"
+}
+
 # Dialect Normalization Layer
 DIALECT_NORMALIZATION = {
     "EGY": {
@@ -94,6 +107,22 @@ def normalize_dialect(text: str, dialect: str):
     Returns normalized text + list of applied rules.
     """
     applied_rules = []
+
+    # NEW: maps alternate dialect labels to the category names already used in DIALECT_NORMALIZATION
+    dialect = DIALECT_LABEL_ALIASES.get(dialect, dialect)
+    rules = DIALECT_NORMALIZATION.get(dialect, {})
+
+     # NEW: start with the original full text so multi-word phrase rules can be applied before splitting into tokens
+    normalized_text = text
+    
+    # NEW: apply phrase-level replacements first
+    # This is necessary because text.split() would break "مش تعبان" into two separate tokens
+    for source, target in rules.items():
+        if " " in source and source in normalized_text:
+            normalized_text = normalized_text.replace(source, target)
+            applied_rules.append(f"{source} → {target}")
+
+    tokens = normalized_text.split()
 
     rules = DIALECT_NORMALIZATION.get(dialect, {})
     tokens = text.split()
