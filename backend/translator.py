@@ -1,4 +1,3 @@
-from matplotlib import text
 from transformers import MarianMTModel, MarianTokenizer
 import torch
 import re
@@ -130,15 +129,11 @@ def normalize_dialect(text: str, dialect: str):
     """
     applied_rules = []
 
-    # NEW: maps alternate dialect labels to the category names already used in DIALECT_NORMALIZATION
     dialect = DIALECT_LABEL_ALIASES.get(dialect, dialect)
     rules = DIALECT_NORMALIZATION.get(dialect, {})
 
-     # NEW: start with the original full text so multi-word phrase rules can be applied before splitting into tokens
     normalized_text = text
-    
-    # NEW: apply phrase-level replacements first
-    # This is necessary because text.split() would break "مش تعبان" into two separate tokens
+
     for source, target in rules.items():
         if " " in source and source in normalized_text:
             normalized_text = normalized_text.replace(source, target)
@@ -146,12 +141,8 @@ def normalize_dialect(text: str, dialect: str):
 
     tokens = normalized_text.split()
 
-    rules = DIALECT_NORMALIZATION.get(dialect, {})
-    tokens = text.split()
-
     normalized_tokens = []
     for token in tokens:
-        # NEW: strip punctuation around token before matching
         clean_token = re.sub(r"[^\u0600-\u06FF]", "", token)
 
         if clean_token in rules:
@@ -207,7 +198,6 @@ def dialect_aware_translate(text: str, detect_dialect):
     """
     dialect = detect_dialect(text)
 
-    # NEW: stop early if the input does not appear to be Arabic
     if dialect == "NON_ARABIC":
         return {
             "input_text": text,
@@ -231,19 +221,23 @@ def dialect_aware_translate(text: str, detect_dialect):
         "ambiguities": ambiguity_notes
     }
 
-# Example Run (Perfect for Live Demo)
 
-examples = [
-    "أنا رايح البيت ومش تعبان",          # EGY
-    "شو بدّي أعمل هلق؟",                # LEV
-    "شلونك الحين؟ هذا وايد زين",         # GLF
-    "شنو تريد هسه؟",                    # IRQ
-    "دابا بغيت نمشي، هاد بزاف",          # MGH
-    "hello what is this"                 # NON_ARABIC
-]
+if __name__ == "__main__":
+    from dialect_detector import detect_dialect
 
-for example in examples:
-    print("\n" + "=" * 60)
-    result = dialect_aware_translate(examples)
-    for k, v in result.items():
-        print(f"{k}: {v}")
+    load_translation_model()
+
+    examples = [
+        "أنا رايح البيت ومش تعبان",
+        "شو بدّي أعمل هلق؟",
+        "شلونك الحين؟ هذا وايد زين",
+        "شنو تريد هسه؟",
+        "دابا بغيت نمشي، هاد بزاف",
+        "hello what is this"
+    ]
+
+    for example in examples:
+        print("\n" + "=" * 60)
+        result = dialect_aware_translate(example, detect_dialect)
+        for k, v in result.items():
+            print(f"{k}: {v}")
