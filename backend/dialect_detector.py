@@ -38,12 +38,34 @@ def load_models():
         print("You need to train the model first using the training data")
         return False
 
+# NEW: checks whether the input is mostly Arabic script
+ARABIC_CHAR_RE = re.compile(r"[\u0600-\u06FF]")
+
+# NEW: checks whether a character is Arabic script
+ARABIC_CHAR_RE = re.compile(r"[\u0600-\u06FF]")
+
 def detect_dialect(text: str) -> str:
     """Detect the dialect of the input Arabic text"""
-    if vectorizer is None or model is None:
-        raise ValueError("Models not loaded. Call load_models() first.")
+    text = str(text)
+
+    # NEW: reject inputs that are mostly not Arabic script
+    letters = [ch for ch in text if ch.isalpha()]
+    if not letters:
+        return "NON_ARABIC"
+
+    arabic_letters = sum(bool(ARABIC_CHAR_RE.match(ch)) for ch in letters)
+    arabic_ratio = arabic_letters / len(letters)
+
+    # NEW: if too little Arabic is present, do not force a dialect prediction
+    if arabic_ratio < 0.35:
+        return "NON_ARABIC"
 
     text_clean = normalize_arabic(text)
+
+    # NEW: if normalization strips everything out, treat it as non-Arabic
+    if not text_clean:
+        return "NON_ARABIC"
+
     text_vectorized = vectorizer.transform([text_clean])
     return model.predict(text_vectorized)[0]
 
