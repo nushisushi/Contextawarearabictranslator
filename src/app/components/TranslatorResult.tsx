@@ -4,7 +4,7 @@ import { useEffect } from "react";
 export function TranslatorResult() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { dialect, translation, originalText } = location.state || {};
+  const { dialect, dialectCode, translation, originalText, confidence } = location.state || {};
 
   useEffect(() => {
     if (!dialect || !translation) {
@@ -27,6 +27,14 @@ export function TranslatorResult() {
           <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded">
             <p className="text-sm text-gray-600 mb-1">Detected Dialect:</p>
             <p className="text-2xl text-indigo-700">{dialect}</p>
+            {dialectCode && (
+              <p className="text-sm text-gray-500 mt-1">Code: {dialectCode}</p>
+            )}
+            {confidence && (
+              <p className="text-sm text-gray-500 mt-1">
+                Confidence: {(confidence * 100).toFixed(1)}%
+              </p>
+            )}
           </div>
 
           <div>
